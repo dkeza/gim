@@ -3,12 +3,11 @@ FUNCTION Main()
      LOCAL jsonIn := {=>}
      LOCAL input := ""
      LOCAL hHeadersIn := ""
+     LOCAL jsonFound := 0
      PRIVATE idSession := ""
 
 	jsonOut["success"] := .F.
      jsonOut["error"]   := ""     
-	jsonOut["user"]    := ""
-	jsonOut["name"]    := ""
 
      AP_SetContentType( "application/json" )
     
@@ -21,19 +20,38 @@ FUNCTION Main()
      hHeadersIn := AP_HeadersIn()
      IF hb_HHasKey( hHeadersIn, "Cookie" )
           idSession := hHeadersIn[ "Cookie" ]
+          IF LEN(idSession)<30
+               idSession := ""
+          ELSE
+               idSession := RIGHT(idSession, 27)
+          ENDIF
      ENDIF
      
      input = AP_Body()
      
-     hb_jsonDecode( input, @jsonIn )
-
-     hb_MemoWrit("c:\laragon\www\gim\api\v1\test.log", idSession + CHR(13))
+     IF LEN(input)>0
+          jsonFound := hb_jsonDecode(input, @jsonIn)
+          hb_MemoWrit(PathBase() + "\test.log", TRANSFORM(jsonFound, "@"))
+     ENDIF
 
      DO CASE
+          CASE LEN(input)==0 .OR. jsonFound==0
+               jsonOut["error"] := "Unknown request"
+               ?? hb_jsonEncode( jsonOut )
+               RETURN nil
           CASE jsonIn["method"]=="login"
+               jsonOut["user"] := ""
+               jsonOut["name"] := ""
                OnLogin(@jsonIn, @jsonOut)
+          CASE LEN(idSession)==0
+               jsonOut["error"] := "Unauthenticated"     
+               ?? hb_jsonEncode( jsonOut )
+               RETURN nil
+          CASE jsonIn["method"]=="ping"
+               jsonOut["timestamp"] := ""
+               OnPing(@jsonIn, @jsonOut)
           OTHERWISE
-               jsonOut["error"] := "Unknown method"     
+               jsonOut["error"] := "Unknown method"
                ?? hb_jsonEncode( jsonOut )
                RETURN nil
      ENDCASE
@@ -74,7 +92,7 @@ FUNCTION OnLogin(jsonIn, jsonOut)
 
 RETURN nil
 
-function GenerateUUID
+FUNCTION GenerateUUID
 
    local cChars := "0123456789ABCDEF"
    local cUUID  := ""
@@ -95,4 +113,9 @@ function GenerateUUID
       cUUID += SubStr( cChars, hb_Random( 1, 16 ), 1 )
    next
  
-return LOWER(cUUID)
+RETURN LOWER(cUUID)
+
+FUNCTION OnPing(jsonIn, jsonOut)
+     jsonOut["success"] := .T.
+     jsonOut["timestamp"] := DTOS(DATE()) + "_" + TIME()
+RETURN nil
