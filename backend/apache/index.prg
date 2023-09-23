@@ -7,12 +7,12 @@ FUNCTION Main()
      PRIVATE idSession := ""
 
 	jsonOut["success"] := .F.
-     jsonOut["error"]   := ""     
+     jsonOut["error"]   := ""
 
      AP_SetContentType( "application/json" )
     
      IF AP_Method()<>"POST"
-          jsonOut["error"] := "HTTP method not allowed"     
+          jsonOut["error"] := "HTTP method not allowed"
           ?? hb_jsonEncode( jsonOut )
           RETURN nil
      ENDIF
@@ -43,8 +43,8 @@ FUNCTION Main()
                jsonOut["user"] := ""
                jsonOut["name"] := ""
                OnLogin(@jsonIn, @jsonOut)
-          CASE LEN(idSession)==0
-               jsonOut["error"] := "Unauthenticated"     
+          CASE .NOT. ValidSessionID()
+               jsonOut["error"] := "Unauthenticated"
                ?? hb_jsonEncode( jsonOut )
                RETURN nil
           CASE jsonIn["method"]=="ping"
@@ -59,6 +59,20 @@ FUNCTION Main()
 	?? hb_jsonEncode( jsonOut ) 
 
 RETURN nil
+
+FUNCTION ValidSessionID
+     LOCAL isValid := .T.
+
+     IF LEN(idSession)==0
+          isValid := .F.
+     ENDIF
+
+     USE ( hb_GetEnv( "PRGPATH" ) + "/sessions" ) SHARED
+     LOCATE FOR sessions->sessionid = idSession
+     IF .NOT. FOUND()
+          isValid := .F.
+     ENDIF
+RETURN isValid
 
 FUNCTION OnLogin(jsonIn, jsonOut)
      LOCAL cCookie := ""

@@ -38,7 +38,7 @@
 		<FIELD>
 			<Name>SESSIONID</Name>
 			<Type>C</Type>
-			<Width>30</Width>
+			<Width>27</Width>
 			<Decimals>0</Decimals>
 			<Null>.F.</Null>
 			<NoCPTran>.F.</NoCPTran>
