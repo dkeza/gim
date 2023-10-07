@@ -50,6 +50,8 @@ FUNCTION Main()
           CASE jsonIn["method"]=="ping"
                jsonOut["timestamp"] := ""
                OnPing(@jsonIn, @jsonOut)
+          CASE jsonIn["method"]=="logout"
+               OnLogout(@jsonOut)
           OTHERWISE
                jsonOut["error"] := "Unknown method"
                ?? hb_jsonEncode( jsonOut )
@@ -102,6 +104,21 @@ FUNCTION OnLogin(jsonIn, jsonOut)
 
      ELSE
           jsonOut["error"] := "Login failed"
+     ENDIF
+
+RETURN nil
+
+FUNCTION OnLogout(jsonOut)
+     jsonOut["success"] := .T.
+
+     IF LEN(idSession)==0
+          RETURN nil
+     ENDIF
+
+     USE ( hb_GetEnv( "PRGPATH" ) + "/sessions" ) SHARED
+     LOCATE FOR sessions->sessionid = idSession
+     IF FOUND() .AND. RLOCK()
+          DELETE
      ENDIF
 
 RETURN nil
