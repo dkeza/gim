@@ -32,7 +32,7 @@
 			<Upd_Trig_Exp></Upd_Trig_Exp>
 			<Del_Trig_Exp></Del_Trig_Exp>
 			<TableComment></TableComment>
-			<Autoinc_Nextval>6</Autoinc_Nextval>
+			<Autoinc_Nextval>1</Autoinc_Nextval>
 			<Autoinc_Step>1</Autoinc_Step>
 		</FIELD>
 		<FIELD>

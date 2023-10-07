@@ -7,6 +7,7 @@
     import { push, link, location } from "svelte-spa-router";
     import { setupI18n, isLocaleLoaded, locale, _ } from "./services/i18n";
     import Home from "./Home.svelte";
+    import Workouts from "./Workouts.svelte";
     import Login from "./Login.svelte";
     import Logout from "./Logout.svelte";
     import LocaleSelector from "./components/LocaleSelector.svelte";
@@ -36,6 +37,11 @@
                     >
                 {:else}
                     <a
+                        class:active={$location === "/workouts"}
+                        href="/workouts"
+                        use:link>{$_("workouts")}</a
+                    >
+                    <a
                         class:active={$location === "/logout"}
                         href="/logout"
                         use:link>{$_("logout")}</a
@@ -54,6 +60,18 @@
                             component: Home,
                             conditions: [
                                 () => {
+                                    return true;
+                                },
+                            ],
+                        }),
+                        "/workouts": wrap({
+                            component: Workouts,
+                            conditions: [
+                                () => {
+                                    if (!$s.loggedIn) {
+                                        push("/login");
+                                        return false;
+                                    }
                                     return true;
                                 },
                             ],
