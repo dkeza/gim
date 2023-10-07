@@ -10,8 +10,8 @@
 
 <h3>{$_("welcome")}</h3>
 
-{#if $s.loggedIn}
-    <h4>{$s.userName}</h4>
+{#if $s.oUser.loggedIn}
+    <h4>{$s.oUser.firstname + " " + $s.oUser.lastname}</h4>
 {:else}
     <button on:click={goLoginPage}>{$_("login")}</button>
 {/if}

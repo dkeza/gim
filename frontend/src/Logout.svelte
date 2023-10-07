@@ -12,9 +12,11 @@
         });
         console.log(res);
         if (res.success) {
-            $s.userId = "";
-            $s.userName = "";
-            $s.loggedIn = false;
+            $s.oUser.nick = "";
+            $s.oUser.firstname = "";
+            $s.oUser.lastname = "";
+            $s.oUser.email = "";
+            $s.oUser.loggedIn = false;
             push("/");
             return;
         }

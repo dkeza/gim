@@ -3,12 +3,12 @@
     import s from "./services/stores.js";
     import APIGet from "./services/api";
     import { push } from "svelte-spa-router";
-    let u = "";
-    let p = "";
-    let e = "";
+
+    let errorMessage = "";
+    let errorCode = 0;
     let register = false;
     let oUser = {
-        method: "register",
+        method: "",
         nick: "",
         firstname: "",
         lastname: "",
@@ -17,51 +17,50 @@
     };
 
     async function tryLogin() {
-        const user = u,
-            password = p;
+        oUser.method = "login";
 
-        u = "";
-        p = "";
-        e = "";
-        const res = await APIGet({
-            method: "login",
-            user: user,
-            password: password,
-        });
-        console.log(res);
-        if (res.success) {
-            $s.userId = res.nick;
-            $s.userName = res.firstname + " " + res.lastname;
-            $s.loggedIn = true;
-            push("/");
-            return;
-        } else {
-            $s.userId = "";
-            $s.userName = "";
-            $s.loggedIn = false;
-        }
+        $s.oUser.nick = "";
+        $s.oUser.firstname = "";
+        $s.oUser.lastname = "";
+        $s.oUser.email = "";
+        $s.oUser.loggedIn = false;
 
-        e = res.error;
-    }
-
-    async function tryRegister() {
         const res = await APIGet(oUser);
 
         console.log(res);
 
         if (res.success) {
-            $s.userId = res.nick;
-            $s.userName = res.firstname + " " + res.lastname;
-            $s.loggedIn = true;
+            $s.oUser.nick = res.nick;
+            $s.oUser.firstname = res.firstname;
+            $s.oUser.lastname = res.lastname;
+            $s.oUser.email = res.email;
+            $s.oUser.loggedIn = true;
             push("/");
             return;
-        } else {
-            $s.userId = "";
-            $s.userName = "";
-            $s.loggedIn = false;
         }
 
-        e = res.error;
+        errorMessage = res.error;
+        errorCode = res.errorcode;
+    }
+
+    async function tryRegister() {
+        oUser.method = "register";
+        const res = await APIGet(oUser);
+
+        console.log(res);
+
+        if (res.success) {
+            $s.oUser.nick = res.nick;
+            $s.oUser.firstname = res.firstname;
+            $s.oUser.lastname = res.lastname;
+            $s.oUser.email = res.email;
+            $s.oUser.loggedIn = true;
+            push("/");
+            return;
+        }
+
+        errorMessage = res.error;
+        errorCode = res.errorcode;
     }
 
     function showRegister() {
@@ -75,10 +74,10 @@
 
 <h1>{$_("login")}</h1>
 
-<h1>{$s.userName}</h1>
+<h1>{$s.oUser.firstname + " " + $s.oUser.firstname}</h1>
 
-{#if e.length > 0}
-    <p>{e}</p>
+{#if errorMessage.length > 0}
+    <p>{$_(errorMessage)} ({errorCode})</p>
 {/if}
 
 {#if register}
@@ -97,8 +96,8 @@
     </form>
 {:else}
     <form on:submit|preventDefault={tryLogin}>
-        <input placeholder={$_("user")} bind:value={u} />
-        <input placeholder={$_("password")} bind:value={p} />
+        <input placeholder={$_("user")} bind:value={oUser.nick} />
+        <input placeholder={$_("password")} bind:value={oUser.password} />
         <button type="submit">{$_("login")}</button>
     </form>
     <br />

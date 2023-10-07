@@ -832,9 +832,13 @@ var app = (function () {
 
     const s = writable(
         {
-            userId: '',
-            userName: '',
-            loggedIn: false
+            oUser: {
+                nick: "",
+                firstname: "",
+                lastname: "",
+                email: "",
+                loggedIn: false
+            }
         },
     );
 
@@ -6363,7 +6367,7 @@ var app = (function () {
     		c: function create() {
     			button = element("button");
     			t = text(t_value);
-    			add_location(button, file$b, 15, 4, 292);
+    			add_location(button, file$b, 15, 4, 331);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, button, anchor);
@@ -6395,24 +6399,24 @@ var app = (function () {
     	return block;
     }
 
-    // (13:0) {#if $s.loggedIn}
+    // (13:0) {#if $s.oUser.loggedIn}
     function create_if_block$6(ctx) {
     	let h4;
-    	let t_value = /*$s*/ ctx[1].userName + "";
+    	let t_value = /*$s*/ ctx[1].oUser.firstname + " " + /*$s*/ ctx[1].oUser.lastname + "";
     	let t;
 
     	const block = {
     		c: function create() {
     			h4 = element("h4");
     			t = text(t_value);
-    			add_location(h4, file$b, 13, 4, 257);
+    			add_location(h4, file$b, 13, 4, 263);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h4, anchor);
     			append_dev(h4, t);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*$s*/ 2 && t_value !== (t_value = /*$s*/ ctx[1].userName + "")) set_data_dev(t, t_value);
+    			if (dirty & /*$s*/ 2 && t_value !== (t_value = /*$s*/ ctx[1].oUser.firstname + " " + /*$s*/ ctx[1].oUser.lastname + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(h4);
@@ -6423,7 +6427,7 @@ var app = (function () {
     		block,
     		id: create_if_block$6.name,
     		type: "if",
-    		source: "(13:0) {#if $s.loggedIn}",
+    		source: "(13:0) {#if $s.oUser.loggedIn}",
     		ctx
     	});
 
@@ -6438,7 +6442,7 @@ var app = (function () {
     	let if_block_anchor;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*$s*/ ctx[1].loggedIn) return create_if_block$6;
+    		if (/*$s*/ ctx[1].oUser.loggedIn) return create_if_block$6;
     		return create_else_block$4;
     	}
 
@@ -6637,26 +6641,37 @@ var app = (function () {
     const { console: console_1$1 } = globals;
     const file$9 = "src\\Login.svelte";
 
-    // (80:0) {#if e.length > 0}
+    // (79:0) {#if errorMessage.length > 0}
     function create_if_block_1$3(ctx) {
-    	let p_1;
-    	let t;
+    	let p;
+    	let t0_value = /*$_*/ ctx[5](/*errorMessage*/ ctx[0]) + "";
+    	let t0;
+    	let t1;
+    	let t2;
+    	let t3;
 
     	const block = {
     		c: function create() {
-    			p_1 = element("p");
-    			t = text(/*e*/ ctx[2]);
-    			add_location(p_1, file$9, 80, 4, 1701);
+    			p = element("p");
+    			t0 = text(t0_value);
+    			t1 = text(" (");
+    			t2 = text(/*errorCode*/ ctx[1]);
+    			t3 = text(")");
+    			add_location(p, file$9, 79, 4, 1819);
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, p_1, anchor);
-    			append_dev(p_1, t);
+    			insert_dev(target, p, anchor);
+    			append_dev(p, t0);
+    			append_dev(p, t1);
+    			append_dev(p, t2);
+    			append_dev(p, t3);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*e*/ 4) set_data_dev(t, /*e*/ ctx[2]);
+    			if (dirty & /*$_, errorMessage*/ 33 && t0_value !== (t0_value = /*$_*/ ctx[5](/*errorMessage*/ ctx[0]) + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*errorCode*/ 2) set_data_dev(t2, /*errorCode*/ ctx[1]);
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(p_1);
+    			if (detaching) detach_dev(p);
     		}
     	};
 
@@ -6664,14 +6679,14 @@ var app = (function () {
     		block,
     		id: create_if_block_1$3.name,
     		type: "if",
-    		source: "(80:0) {#if e.length > 0}",
+    		source: "(79:0) {#if errorMessage.length > 0}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (98:0) {:else}
+    // (97:0) {:else}
     function create_else_block$3(ctx) {
     	let form0;
     	let input0;
@@ -6681,18 +6696,18 @@ var app = (function () {
     	let input1_placeholder_value;
     	let t1;
     	let button0;
-    	let t2_value = /*$_*/ ctx[6]("login") + "";
+    	let t2_value = /*$_*/ ctx[5]("login") + "";
     	let t2;
     	let t3;
     	let br;
     	let t4;
     	let form1;
-    	let p_1;
-    	let t5_value = /*$_*/ ctx[6]("no_account_register") + "";
+    	let p;
+    	let t5_value = /*$_*/ ctx[5]("no_account_register") + "";
     	let t5;
     	let t6;
     	let button1;
-    	let t7_value = /*$_*/ ctx[6]("register") + "";
+    	let t7_value = /*$_*/ ctx[5]("register") + "";
     	let t7;
     	let mounted;
     	let dispose;
@@ -6710,31 +6725,31 @@ var app = (function () {
     			br = element("br");
     			t4 = space();
     			form1 = element("form");
-    			p_1 = element("p");
+    			p = element("p");
     			t5 = text(t5_value);
     			t6 = space();
     			button1 = element("button");
     			t7 = text(t7_value);
-    			attr_dev(input0, "placeholder", input0_placeholder_value = /*$_*/ ctx[6]("user"));
-    			add_location(input0, file$9, 99, 8, 2444);
-    			attr_dev(input1, "placeholder", input1_placeholder_value = /*$_*/ ctx[6]("password"));
-    			add_location(input1, file$9, 100, 8, 2502);
+    			attr_dev(input0, "placeholder", input0_placeholder_value = /*$_*/ ctx[5]("user"));
+    			add_location(input0, file$9, 98, 8, 2591);
+    			attr_dev(input1, "placeholder", input1_placeholder_value = /*$_*/ ctx[5]("password"));
+    			add_location(input1, file$9, 99, 8, 2658);
     			attr_dev(button0, "type", "submit");
-    			add_location(button0, file$9, 101, 8, 2564);
-    			add_location(form0, file$9, 98, 4, 2393);
-    			add_location(br, file$9, 103, 4, 2625);
-    			add_location(p_1, file$9, 105, 8, 2691);
+    			add_location(button0, file$9, 100, 8, 2733);
+    			add_location(form0, file$9, 97, 4, 2540);
+    			add_location(br, file$9, 102, 4, 2794);
+    			add_location(p, file$9, 104, 8, 2860);
     			attr_dev(button1, "type", "submit");
-    			add_location(button1, file$9, 106, 8, 2734);
-    			add_location(form1, file$9, 104, 4, 2636);
+    			add_location(button1, file$9, 105, 8, 2903);
+    			add_location(form1, file$9, 103, 4, 2805);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, form0, anchor);
     			append_dev(form0, input0);
-    			set_input_value(input0, /*u*/ ctx[0]);
+    			set_input_value(input0, /*oUser*/ ctx[3].nick);
     			append_dev(form0, t0);
     			append_dev(form0, input1);
-    			set_input_value(input1, /*p*/ ctx[1]);
+    			set_input_value(input1, /*oUser*/ ctx[3].password);
     			append_dev(form0, t1);
     			append_dev(form0, button0);
     			append_dev(button0, t2);
@@ -6742,43 +6757,43 @@ var app = (function () {
     			insert_dev(target, br, anchor);
     			insert_dev(target, t4, anchor);
     			insert_dev(target, form1, anchor);
-    			append_dev(form1, p_1);
-    			append_dev(p_1, t5);
+    			append_dev(form1, p);
+    			append_dev(p, t5);
     			append_dev(form1, t6);
     			append_dev(form1, button1);
     			append_dev(button1, t7);
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "input", /*input0_input_handler_1*/ ctx[16]),
-    					listen_dev(input1, "input", /*input1_input_handler_1*/ ctx[17]),
-    					listen_dev(form0, "submit", prevent_default(/*tryLogin*/ ctx[7]), false, true, false, false),
-    					listen_dev(form1, "submit", prevent_default(/*showRegister*/ ctx[9]), false, true, false, false)
+    					listen_dev(input0, "input", /*input0_input_handler_1*/ ctx[15]),
+    					listen_dev(input1, "input", /*input1_input_handler_1*/ ctx[16]),
+    					listen_dev(form0, "submit", prevent_default(/*tryLogin*/ ctx[6]), false, true, false, false),
+    					listen_dev(form1, "submit", prevent_default(/*showRegister*/ ctx[8]), false, true, false, false)
     				];
 
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*$_*/ 64 && input0_placeholder_value !== (input0_placeholder_value = /*$_*/ ctx[6]("user"))) {
+    			if (dirty & /*$_*/ 32 && input0_placeholder_value !== (input0_placeholder_value = /*$_*/ ctx[5]("user"))) {
     				attr_dev(input0, "placeholder", input0_placeholder_value);
     			}
 
-    			if (dirty & /*u*/ 1 && input0.value !== /*u*/ ctx[0]) {
-    				set_input_value(input0, /*u*/ ctx[0]);
+    			if (dirty & /*oUser*/ 8 && input0.value !== /*oUser*/ ctx[3].nick) {
+    				set_input_value(input0, /*oUser*/ ctx[3].nick);
     			}
 
-    			if (dirty & /*$_*/ 64 && input1_placeholder_value !== (input1_placeholder_value = /*$_*/ ctx[6]("password"))) {
+    			if (dirty & /*$_*/ 32 && input1_placeholder_value !== (input1_placeholder_value = /*$_*/ ctx[5]("password"))) {
     				attr_dev(input1, "placeholder", input1_placeholder_value);
     			}
 
-    			if (dirty & /*p*/ 2 && input1.value !== /*p*/ ctx[1]) {
-    				set_input_value(input1, /*p*/ ctx[1]);
+    			if (dirty & /*oUser*/ 8 && input1.value !== /*oUser*/ ctx[3].password) {
+    				set_input_value(input1, /*oUser*/ ctx[3].password);
     			}
 
-    			if (dirty & /*$_*/ 64 && t2_value !== (t2_value = /*$_*/ ctx[6]("login") + "")) set_data_dev(t2, t2_value);
-    			if (dirty & /*$_*/ 64 && t5_value !== (t5_value = /*$_*/ ctx[6]("no_account_register") + "")) set_data_dev(t5, t5_value);
-    			if (dirty & /*$_*/ 64 && t7_value !== (t7_value = /*$_*/ ctx[6]("register") + "")) set_data_dev(t7, t7_value);
+    			if (dirty & /*$_*/ 32 && t2_value !== (t2_value = /*$_*/ ctx[5]("login") + "")) set_data_dev(t2, t2_value);
+    			if (dirty & /*$_*/ 32 && t5_value !== (t5_value = /*$_*/ ctx[5]("no_account_register") + "")) set_data_dev(t5, t5_value);
+    			if (dirty & /*$_*/ 32 && t7_value !== (t7_value = /*$_*/ ctx[5]("register") + "")) set_data_dev(t7, t7_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(form0);
@@ -6795,14 +6810,14 @@ var app = (function () {
     		block,
     		id: create_else_block$3.name,
     		type: "else",
-    		source: "(98:0) {:else}",
+    		source: "(97:0) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (84:0) {#if register}
+    // (83:0) {#if register}
     function create_if_block$5(ctx) {
     	let form0;
     	let input0;
@@ -6821,18 +6836,18 @@ var app = (function () {
     	let input4_placeholder_value;
     	let t4;
     	let button0;
-    	let t5_value = /*$_*/ ctx[6]("register") + "";
+    	let t5_value = /*$_*/ ctx[5]("register") + "";
     	let t5;
     	let t6;
     	let br;
     	let t7;
     	let form1;
-    	let p_1;
-    	let t8_value = /*$_*/ ctx[6]("you_have_account") + "";
+    	let p;
+    	let t8_value = /*$_*/ ctx[5]("you_have_account") + "";
     	let t8;
     	let t9;
     	let button1;
-    	let t10_value = /*$_*/ ctx[6]("login") + "";
+    	let t10_value = /*$_*/ ctx[5]("login") + "";
     	let t10;
     	let mounted;
     	let dispose;
@@ -6856,46 +6871,46 @@ var app = (function () {
     			br = element("br");
     			t7 = space();
     			form1 = element("form");
-    			p_1 = element("p");
+    			p = element("p");
     			t8 = text(t8_value);
     			t9 = space();
     			button1 = element("button");
     			t10 = text(t10_value);
-    			attr_dev(input0, "placeholder", input0_placeholder_value = /*$_*/ ctx[6]("user"));
-    			add_location(input0, file$9, 85, 8, 1792);
-    			attr_dev(input1, "placeholder", input1_placeholder_value = /*$_*/ ctx[6]("first_name"));
-    			add_location(input1, file$9, 86, 8, 1859);
-    			attr_dev(input2, "placeholder", input2_placeholder_value = /*$_*/ ctx[6]("last_name"));
-    			add_location(input2, file$9, 87, 8, 1937);
-    			attr_dev(input3, "placeholder", input3_placeholder_value = /*$_*/ ctx[6]("email"));
-    			add_location(input3, file$9, 88, 8, 2013);
-    			attr_dev(input4, "placeholder", input4_placeholder_value = /*$_*/ ctx[6]("password"));
-    			add_location(input4, file$9, 89, 8, 2082);
+    			attr_dev(input0, "placeholder", input0_placeholder_value = /*$_*/ ctx[5]("user"));
+    			add_location(input0, file$9, 84, 8, 1939);
+    			attr_dev(input1, "placeholder", input1_placeholder_value = /*$_*/ ctx[5]("first_name"));
+    			add_location(input1, file$9, 85, 8, 2006);
+    			attr_dev(input2, "placeholder", input2_placeholder_value = /*$_*/ ctx[5]("last_name"));
+    			add_location(input2, file$9, 86, 8, 2084);
+    			attr_dev(input3, "placeholder", input3_placeholder_value = /*$_*/ ctx[5]("email"));
+    			add_location(input3, file$9, 87, 8, 2160);
+    			attr_dev(input4, "placeholder", input4_placeholder_value = /*$_*/ ctx[5]("password"));
+    			add_location(input4, file$9, 88, 8, 2229);
     			attr_dev(button0, "type", "submit");
-    			add_location(button0, file$9, 90, 8, 2157);
-    			add_location(form0, file$9, 84, 4, 1738);
-    			add_location(br, file$9, 92, 4, 2221);
-    			add_location(p_1, file$9, 94, 8, 2284);
+    			add_location(button0, file$9, 89, 8, 2304);
+    			add_location(form0, file$9, 83, 4, 1885);
+    			add_location(br, file$9, 91, 4, 2368);
+    			add_location(p, file$9, 93, 8, 2431);
     			attr_dev(button1, "type", "submit");
-    			add_location(button1, file$9, 95, 8, 2324);
-    			add_location(form1, file$9, 93, 4, 2232);
+    			add_location(button1, file$9, 94, 8, 2471);
+    			add_location(form1, file$9, 92, 4, 2379);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, form0, anchor);
     			append_dev(form0, input0);
-    			set_input_value(input0, /*oUser*/ ctx[4].nick);
+    			set_input_value(input0, /*oUser*/ ctx[3].nick);
     			append_dev(form0, t0);
     			append_dev(form0, input1);
-    			set_input_value(input1, /*oUser*/ ctx[4].firstname);
+    			set_input_value(input1, /*oUser*/ ctx[3].firstname);
     			append_dev(form0, t1);
     			append_dev(form0, input2);
-    			set_input_value(input2, /*oUser*/ ctx[4].lastname);
+    			set_input_value(input2, /*oUser*/ ctx[3].lastname);
     			append_dev(form0, t2);
     			append_dev(form0, input3);
-    			set_input_value(input3, /*oUser*/ ctx[4].email);
+    			set_input_value(input3, /*oUser*/ ctx[3].email);
     			append_dev(form0, t3);
     			append_dev(form0, input4);
-    			set_input_value(input4, /*oUser*/ ctx[4].password);
+    			set_input_value(input4, /*oUser*/ ctx[3].password);
     			append_dev(form0, t4);
     			append_dev(form0, button0);
     			append_dev(button0, t5);
@@ -6903,70 +6918,70 @@ var app = (function () {
     			insert_dev(target, br, anchor);
     			insert_dev(target, t7, anchor);
     			insert_dev(target, form1, anchor);
-    			append_dev(form1, p_1);
-    			append_dev(p_1, t8);
+    			append_dev(form1, p);
+    			append_dev(p, t8);
     			append_dev(form1, t9);
     			append_dev(form1, button1);
     			append_dev(button1, t10);
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[11]),
-    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[12]),
-    					listen_dev(input2, "input", /*input2_input_handler*/ ctx[13]),
-    					listen_dev(input3, "input", /*input3_input_handler*/ ctx[14]),
-    					listen_dev(input4, "input", /*input4_input_handler*/ ctx[15]),
-    					listen_dev(form0, "submit", prevent_default(/*tryRegister*/ ctx[8]), false, true, false, false),
-    					listen_dev(form1, "submit", prevent_default(/*showLogin*/ ctx[10]), false, true, false, false)
+    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[10]),
+    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[11]),
+    					listen_dev(input2, "input", /*input2_input_handler*/ ctx[12]),
+    					listen_dev(input3, "input", /*input3_input_handler*/ ctx[13]),
+    					listen_dev(input4, "input", /*input4_input_handler*/ ctx[14]),
+    					listen_dev(form0, "submit", prevent_default(/*tryRegister*/ ctx[7]), false, true, false, false),
+    					listen_dev(form1, "submit", prevent_default(/*showLogin*/ ctx[9]), false, true, false, false)
     				];
 
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*$_*/ 64 && input0_placeholder_value !== (input0_placeholder_value = /*$_*/ ctx[6]("user"))) {
+    			if (dirty & /*$_*/ 32 && input0_placeholder_value !== (input0_placeholder_value = /*$_*/ ctx[5]("user"))) {
     				attr_dev(input0, "placeholder", input0_placeholder_value);
     			}
 
-    			if (dirty & /*oUser*/ 16 && input0.value !== /*oUser*/ ctx[4].nick) {
-    				set_input_value(input0, /*oUser*/ ctx[4].nick);
+    			if (dirty & /*oUser*/ 8 && input0.value !== /*oUser*/ ctx[3].nick) {
+    				set_input_value(input0, /*oUser*/ ctx[3].nick);
     			}
 
-    			if (dirty & /*$_*/ 64 && input1_placeholder_value !== (input1_placeholder_value = /*$_*/ ctx[6]("first_name"))) {
+    			if (dirty & /*$_*/ 32 && input1_placeholder_value !== (input1_placeholder_value = /*$_*/ ctx[5]("first_name"))) {
     				attr_dev(input1, "placeholder", input1_placeholder_value);
     			}
 
-    			if (dirty & /*oUser*/ 16 && input1.value !== /*oUser*/ ctx[4].firstname) {
-    				set_input_value(input1, /*oUser*/ ctx[4].firstname);
+    			if (dirty & /*oUser*/ 8 && input1.value !== /*oUser*/ ctx[3].firstname) {
+    				set_input_value(input1, /*oUser*/ ctx[3].firstname);
     			}
 
-    			if (dirty & /*$_*/ 64 && input2_placeholder_value !== (input2_placeholder_value = /*$_*/ ctx[6]("last_name"))) {
+    			if (dirty & /*$_*/ 32 && input2_placeholder_value !== (input2_placeholder_value = /*$_*/ ctx[5]("last_name"))) {
     				attr_dev(input2, "placeholder", input2_placeholder_value);
     			}
 
-    			if (dirty & /*oUser*/ 16 && input2.value !== /*oUser*/ ctx[4].lastname) {
-    				set_input_value(input2, /*oUser*/ ctx[4].lastname);
+    			if (dirty & /*oUser*/ 8 && input2.value !== /*oUser*/ ctx[3].lastname) {
+    				set_input_value(input2, /*oUser*/ ctx[3].lastname);
     			}
 
-    			if (dirty & /*$_*/ 64 && input3_placeholder_value !== (input3_placeholder_value = /*$_*/ ctx[6]("email"))) {
+    			if (dirty & /*$_*/ 32 && input3_placeholder_value !== (input3_placeholder_value = /*$_*/ ctx[5]("email"))) {
     				attr_dev(input3, "placeholder", input3_placeholder_value);
     			}
 
-    			if (dirty & /*oUser*/ 16 && input3.value !== /*oUser*/ ctx[4].email) {
-    				set_input_value(input3, /*oUser*/ ctx[4].email);
+    			if (dirty & /*oUser*/ 8 && input3.value !== /*oUser*/ ctx[3].email) {
+    				set_input_value(input3, /*oUser*/ ctx[3].email);
     			}
 
-    			if (dirty & /*$_*/ 64 && input4_placeholder_value !== (input4_placeholder_value = /*$_*/ ctx[6]("password"))) {
+    			if (dirty & /*$_*/ 32 && input4_placeholder_value !== (input4_placeholder_value = /*$_*/ ctx[5]("password"))) {
     				attr_dev(input4, "placeholder", input4_placeholder_value);
     			}
 
-    			if (dirty & /*oUser*/ 16 && input4.value !== /*oUser*/ ctx[4].password) {
-    				set_input_value(input4, /*oUser*/ ctx[4].password);
+    			if (dirty & /*oUser*/ 8 && input4.value !== /*oUser*/ ctx[3].password) {
+    				set_input_value(input4, /*oUser*/ ctx[3].password);
     			}
 
-    			if (dirty & /*$_*/ 64 && t5_value !== (t5_value = /*$_*/ ctx[6]("register") + "")) set_data_dev(t5, t5_value);
-    			if (dirty & /*$_*/ 64 && t8_value !== (t8_value = /*$_*/ ctx[6]("you_have_account") + "")) set_data_dev(t8, t8_value);
-    			if (dirty & /*$_*/ 64 && t10_value !== (t10_value = /*$_*/ ctx[6]("login") + "")) set_data_dev(t10, t10_value);
+    			if (dirty & /*$_*/ 32 && t5_value !== (t5_value = /*$_*/ ctx[5]("register") + "")) set_data_dev(t5, t5_value);
+    			if (dirty & /*$_*/ 32 && t8_value !== (t8_value = /*$_*/ ctx[5]("you_have_account") + "")) set_data_dev(t8, t8_value);
+    			if (dirty & /*$_*/ 32 && t10_value !== (t10_value = /*$_*/ ctx[5]("login") + "")) set_data_dev(t10, t10_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(form0);
@@ -6983,7 +6998,7 @@ var app = (function () {
     		block,
     		id: create_if_block$5.name,
     		type: "if",
-    		source: "(84:0) {#if register}",
+    		source: "(83:0) {#if register}",
     		ctx
     	});
 
@@ -6992,19 +7007,19 @@ var app = (function () {
 
     function create_fragment$9(ctx) {
     	let h10;
-    	let t0_value = /*$_*/ ctx[6]("login") + "";
+    	let t0_value = /*$_*/ ctx[5]("login") + "";
     	let t0;
     	let t1;
     	let h11;
-    	let t2_value = /*$s*/ ctx[5].userName + "";
+    	let t2_value = /*$s*/ ctx[4].oUser.firstname + " " + /*$s*/ ctx[4].oUser.firstname + "";
     	let t2;
     	let t3;
     	let t4;
     	let if_block1_anchor;
-    	let if_block0 = /*e*/ ctx[2].length > 0 && create_if_block_1$3(ctx);
+    	let if_block0 = /*errorMessage*/ ctx[0].length > 0 && create_if_block_1$3(ctx);
 
     	function select_block_type(ctx, dirty) {
-    		if (/*register*/ ctx[3]) return create_if_block$5;
+    		if (/*register*/ ctx[2]) return create_if_block$5;
     		return create_else_block$3;
     	}
 
@@ -7023,8 +7038,8 @@ var app = (function () {
     			t4 = space();
     			if_block1.c();
     			if_block1_anchor = empty();
-    			add_location(h10, file$9, 75, 0, 1630);
-    			add_location(h11, file$9, 77, 0, 1654);
+    			add_location(h10, file$9, 74, 0, 1703);
+    			add_location(h11, file$9, 76, 0, 1727);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7042,10 +7057,10 @@ var app = (function () {
     			insert_dev(target, if_block1_anchor, anchor);
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*$_*/ 64 && t0_value !== (t0_value = /*$_*/ ctx[6]("login") + "")) set_data_dev(t0, t0_value);
-    			if (dirty & /*$s*/ 32 && t2_value !== (t2_value = /*$s*/ ctx[5].userName + "")) set_data_dev(t2, t2_value);
+    			if (dirty & /*$_*/ 32 && t0_value !== (t0_value = /*$_*/ ctx[5]("login") + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*$s*/ 16 && t2_value !== (t2_value = /*$s*/ ctx[4].oUser.firstname + " " + /*$s*/ ctx[4].oUser.firstname + "")) set_data_dev(t2, t2_value);
 
-    			if (/*e*/ ctx[2].length > 0) {
+    			if (/*errorMessage*/ ctx[0].length > 0) {
     				if (if_block0) {
     					if_block0.p(ctx, dirty);
     				} else {
@@ -7099,18 +7114,17 @@ var app = (function () {
     	let $s;
     	let $_;
     	validate_store(s, 's');
-    	component_subscribe($$self, s, $$value => $$invalidate(5, $s = $$value));
+    	component_subscribe($$self, s, $$value => $$invalidate(4, $s = $$value));
     	validate_store($format, '_');
-    	component_subscribe($$self, $format, $$value => $$invalidate(6, $_ = $$value));
+    	component_subscribe($$self, $format, $$value => $$invalidate(5, $_ = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('Login', slots, []);
-    	let u = "";
-    	let p = "";
-    	let e = "";
+    	let errorMessage = "";
+    	let errorCode = 0;
     	let register = false;
 
     	let oUser = {
-    		method: "register",
+    		method: "",
     		nick: "",
     		firstname: "",
     		lastname: "",
@@ -7119,53 +7133,54 @@ var app = (function () {
     	};
 
     	async function tryLogin() {
-    		const user = u, password = p;
-    		$$invalidate(0, u = "");
-    		$$invalidate(1, p = "");
-    		$$invalidate(2, e = "");
-    		const res = await APIGet({ method: "login", user, password });
-    		console.log(res);
-
-    		if (res.success) {
-    			set_store_value(s, $s.userId = res.nick, $s);
-    			set_store_value(s, $s.userName = res.firstname + " " + res.lastname, $s);
-    			set_store_value(s, $s.loggedIn = true, $s);
-    			push("/");
-    			return;
-    		} else {
-    			set_store_value(s, $s.userId = "", $s);
-    			set_store_value(s, $s.userName = "", $s);
-    			set_store_value(s, $s.loggedIn = false, $s);
-    		}
-
-    		$$invalidate(2, e = res.error);
-    	}
-
-    	async function tryRegister() {
+    		$$invalidate(3, oUser.method = "login", oUser);
+    		set_store_value(s, $s.oUser.nick = "", $s);
+    		set_store_value(s, $s.oUser.firstname = "", $s);
+    		set_store_value(s, $s.oUser.lastname = "", $s);
+    		set_store_value(s, $s.oUser.email = "", $s);
+    		set_store_value(s, $s.oUser.loggedIn = false, $s);
     		const res = await APIGet(oUser);
     		console.log(res);
 
     		if (res.success) {
-    			set_store_value(s, $s.userId = res.nick, $s);
-    			set_store_value(s, $s.userName = res.firstname + " " + res.lastname, $s);
-    			set_store_value(s, $s.loggedIn = true, $s);
+    			set_store_value(s, $s.oUser.nick = res.nick, $s);
+    			set_store_value(s, $s.oUser.firstname = res.firstname, $s);
+    			set_store_value(s, $s.oUser.lastname = res.lastname, $s);
+    			set_store_value(s, $s.oUser.email = res.email, $s);
+    			set_store_value(s, $s.oUser.loggedIn = true, $s);
     			push("/");
     			return;
-    		} else {
-    			set_store_value(s, $s.userId = "", $s);
-    			set_store_value(s, $s.userName = "", $s);
-    			set_store_value(s, $s.loggedIn = false, $s);
     		}
 
-    		$$invalidate(2, e = res.error);
+    		$$invalidate(0, errorMessage = res.error);
+    		$$invalidate(1, errorCode = res.errorcode);
+    	}
+
+    	async function tryRegister() {
+    		$$invalidate(3, oUser.method = "register", oUser);
+    		const res = await APIGet(oUser);
+    		console.log(res);
+
+    		if (res.success) {
+    			set_store_value(s, $s.oUser.nick = res.nick, $s);
+    			set_store_value(s, $s.oUser.firstname = res.firstname, $s);
+    			set_store_value(s, $s.oUser.lastname = res.lastname, $s);
+    			set_store_value(s, $s.oUser.email = res.email, $s);
+    			set_store_value(s, $s.oUser.loggedIn = true, $s);
+    			push("/");
+    			return;
+    		}
+
+    		$$invalidate(0, errorMessage = res.error);
+    		$$invalidate(1, errorCode = res.errorcode);
     	}
 
     	function showRegister() {
-    		$$invalidate(3, register = true);
+    		$$invalidate(2, register = true);
     	}
 
     	function showLogin() {
-    		$$invalidate(3, register = false);
+    		$$invalidate(2, register = false);
     	}
 
     	const writable_props = [];
@@ -7176,37 +7191,37 @@ var app = (function () {
 
     	function input0_input_handler() {
     		oUser.nick = this.value;
-    		$$invalidate(4, oUser);
+    		$$invalidate(3, oUser);
     	}
 
     	function input1_input_handler() {
     		oUser.firstname = this.value;
-    		$$invalidate(4, oUser);
+    		$$invalidate(3, oUser);
     	}
 
     	function input2_input_handler() {
     		oUser.lastname = this.value;
-    		$$invalidate(4, oUser);
+    		$$invalidate(3, oUser);
     	}
 
     	function input3_input_handler() {
     		oUser.email = this.value;
-    		$$invalidate(4, oUser);
+    		$$invalidate(3, oUser);
     	}
 
     	function input4_input_handler() {
     		oUser.password = this.value;
-    		$$invalidate(4, oUser);
+    		$$invalidate(3, oUser);
     	}
 
     	function input0_input_handler_1() {
-    		u = this.value;
-    		$$invalidate(0, u);
+    		oUser.nick = this.value;
+    		$$invalidate(3, oUser);
     	}
 
     	function input1_input_handler_1() {
-    		p = this.value;
-    		$$invalidate(1, p);
+    		oUser.password = this.value;
+    		$$invalidate(3, oUser);
     	}
 
     	$$self.$capture_state = () => ({
@@ -7214,9 +7229,8 @@ var app = (function () {
     		s,
     		APIGet,
     		push,
-    		u,
-    		p,
-    		e,
+    		errorMessage,
+    		errorCode,
     		register,
     		oUser,
     		tryLogin,
@@ -7228,11 +7242,10 @@ var app = (function () {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ('u' in $$props) $$invalidate(0, u = $$props.u);
-    		if ('p' in $$props) $$invalidate(1, p = $$props.p);
-    		if ('e' in $$props) $$invalidate(2, e = $$props.e);
-    		if ('register' in $$props) $$invalidate(3, register = $$props.register);
-    		if ('oUser' in $$props) $$invalidate(4, oUser = $$props.oUser);
+    		if ('errorMessage' in $$props) $$invalidate(0, errorMessage = $$props.errorMessage);
+    		if ('errorCode' in $$props) $$invalidate(1, errorCode = $$props.errorCode);
+    		if ('register' in $$props) $$invalidate(2, register = $$props.register);
+    		if ('oUser' in $$props) $$invalidate(3, oUser = $$props.oUser);
     	};
 
     	if ($$props && "$$inject" in $$props) {
@@ -7240,9 +7253,8 @@ var app = (function () {
     	}
 
     	return [
-    		u,
-    		p,
-    		e,
+    		errorMessage,
+    		errorCode,
     		register,
     		oUser,
     		$s,
@@ -7280,7 +7292,7 @@ var app = (function () {
     const { console: console_1 } = globals;
     const file$8 = "src\\Logout.svelte";
 
-    // (28:0) {#if e.length > 0}
+    // (30:0) {#if e.length > 0}
     function create_if_block$4(ctx) {
     	let p;
     	let t;
@@ -7289,7 +7301,7 @@ var app = (function () {
     		c: function create() {
     			p = element("p");
     			t = text(/*e*/ ctx[0]);
-    			add_location(p, file$8, 28, 4, 593);
+    			add_location(p, file$8, 30, 4, 679);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -7307,7 +7319,7 @@ var app = (function () {
     		block,
     		id: create_if_block$4.name,
     		type: "if",
-    		source: "(28:0) {#if e.length > 0}",
+    		source: "(30:0) {#if e.length > 0}",
     		ctx
     	});
 
@@ -7338,10 +7350,10 @@ var app = (function () {
     			form = element("form");
     			button = element("button");
     			t3 = text(t3_value);
-    			add_location(h1, file$8, 25, 0, 545);
+    			add_location(h1, file$8, 27, 0, 631);
     			attr_dev(button, "type", "submit");
-    			add_location(button, file$8, 32, 4, 659);
-    			add_location(form, file$8, 31, 0, 611);
+    			add_location(button, file$8, 34, 4, 745);
+    			add_location(form, file$8, 33, 0, 697);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7419,9 +7431,11 @@ var app = (function () {
     		console.log(res);
 
     		if (res.success) {
-    			set_store_value(s, $s.userId = "", $s);
-    			set_store_value(s, $s.userName = "", $s);
-    			set_store_value(s, $s.loggedIn = false, $s);
+    			set_store_value(s, $s.oUser.nick = "", $s);
+    			set_store_value(s, $s.oUser.firstname = "", $s);
+    			set_store_value(s, $s.oUser.lastname = "", $s);
+    			set_store_value(s, $s.oUser.email = "", $s);
+    			set_store_value(s, $s.oUser.loggedIn = false, $s);
     			push("/");
     			return;
     		}
@@ -10190,10 +10204,10 @@ var app = (function () {
     			t2 = text(t2_value);
     			attr_dev(a0, "href", "/workouts");
     			toggle_class(a0, "active", /*$location*/ ctx[0] === "/workouts");
-    			add_location(a0, file, 38, 20, 1292);
+    			add_location(a0, file, 38, 20, 1298);
     			attr_dev(a1, "href", "/logout");
     			toggle_class(a1, "active", /*$location*/ ctx[0] === "/logout");
-    			add_location(a1, file, 43, 20, 1496);
+    			add_location(a1, file, 43, 20, 1502);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a0, anchor);
@@ -10244,7 +10258,7 @@ var app = (function () {
     	return block;
     }
 
-    // (32:16) {#if !$s.loggedIn}
+    // (32:16) {#if !$s.oUser.loggedIn}
     function create_if_block(ctx) {
     	let a;
     	let t_value = /*$_*/ ctx[1]("login") + "";
@@ -10258,7 +10272,7 @@ var app = (function () {
     			t = text(t_value);
     			attr_dev(a, "href", "/login");
     			toggle_class(a, "active", /*$location*/ ctx[0] === "/login");
-    			add_location(a, file, 32, 20, 1073);
+    			add_location(a, file, 32, 20, 1079);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -10287,7 +10301,7 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(32:16) {#if !$s.loggedIn}",
+    		source: "(32:16) {#if !$s.oUser.loggedIn}",
     		ctx
     	});
 
@@ -10325,7 +10339,7 @@ var app = (function () {
     		c: function create() {
     			main = element("main");
     			create_component(router.$$.fragment);
-    			add_location(main, file, 55, 12, 1809);
+    			add_location(main, file, 55, 12, 1815);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, main, anchor);
@@ -10394,8 +10408,8 @@ var app = (function () {
     			div = element("div");
     			create_component(localeselector.$$.fragment);
     			attr_dev(div, "class", "nav-right langselect svelte-1cc8y8b");
-    			add_location(div, file, 108, 16, 3884);
-    			add_location(aside, file, 107, 12, 3860);
+    			add_location(div, file, 108, 16, 3908);
+    			add_location(aside, file, 107, 12, 3884);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, aside, anchor);
@@ -10534,7 +10548,7 @@ var app = (function () {
     	let dispose;
 
     	function select_block_type(ctx, dirty) {
-    		if (!/*$s*/ ctx[2].loggedIn) return create_if_block;
+    		if (!/*$s*/ ctx[2].oUser.loggedIn) return create_if_block;
     		return create_else_block;
     	}
 
@@ -10572,7 +10586,7 @@ var app = (function () {
     			add_location(div1, file, 26, 8, 839);
     			attr_dev(nav, "class", "nav");
     			add_location(nav, file, 25, 4, 813);
-    			add_location(footer, file, 118, 4, 4168);
+    			add_location(footer, file, 118, 4, 4192);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, nav, anchor);
@@ -10738,7 +10752,7 @@ var app = (function () {
     	});
 
     	const func_1 = () => {
-    		if (!$s.loggedIn) {
+    		if (!$s.oUser.loggedIn) {
     			push("/login");
     			return false;
     		}
@@ -10747,7 +10761,7 @@ var app = (function () {
     	};
 
     	const func_2 = () => {
-    		if ($s.loggedIn) {
+    		if ($s.oUser.loggedIn) {
     			push("/");
     			return false;
     		}
@@ -10756,7 +10770,7 @@ var app = (function () {
     	};
 
     	const func_3 = () => {
-    		if (!$s.loggedIn) {
+    		if (!$s.oUser.loggedIn) {
     			push("/login");
     			return false;
     		}

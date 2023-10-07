@@ -99,7 +99,7 @@ RETURN nil
 FUNCTION ValidPassword( jsonIn, jsonOut, iduser )
      LOCAL cStoredSalt, cStoredHash, cHashedAttempt, cUsername, cPassword
 
-     cUsername := AllTrim(jsonIn["user"])
+     cUsername := AllTrim(jsonIn["nick"])
      cPassword := AllTrim(jsonIn["password"])
 
      IF LEN(cUsername) == 0 .OR. LEN(cPassword) == "0"
@@ -175,8 +175,9 @@ FUNCTION UserRegister( jsonIn, jsonOut )
      
      // Store in the database
      tbopen("users")
-     
-     LOCATE FOR users->nick == cUsername
+     SELECT users
+
+     LOCATE FOR users->nick == PADR(cUsername,20)
      IF FOUND()
           jsonOut["error"] := "username_exists"
           jsonOut["errorcode"] := 11
@@ -207,8 +208,6 @@ FUNCTION UserRegister( jsonIn, jsonOut )
      jsonOut["lastname"] := lastname
      jsonOut["email"] := email
      jsonOut["success"] := .T.
-
-     CLOSE users
 
      SessionCreate(iduser)
 

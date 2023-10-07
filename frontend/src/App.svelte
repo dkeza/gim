@@ -29,7 +29,7 @@
                 <a class:active={$location === "/"} href="/" use:link
                     >{$_("home")}</a
                 >
-                {#if !$s.loggedIn}
+                {#if !$s.oUser.loggedIn}
                     <a
                         class:active={$location === "/login"}
                         href="/login"
@@ -68,7 +68,7 @@
                             component: Workouts,
                             conditions: [
                                 () => {
-                                    if (!$s.loggedIn) {
+                                    if (!$s.oUser.loggedIn) {
                                         push("/login");
                                         return false;
                                     }
@@ -80,7 +80,7 @@
                             component: Login,
                             conditions: [
                                 () => {
-                                    if ($s.loggedIn) {
+                                    if ($s.oUser.loggedIn) {
                                         push("/");
                                         return false;
                                     }
@@ -92,7 +92,7 @@
                             component: Logout,
                             conditions: [
                                 () => {
-                                    if (!$s.loggedIn) {
+                                    if (!$s.oUser.loggedIn) {
                                         push("/login");
                                         return false;
                                     }

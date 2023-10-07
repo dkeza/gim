@@ -2,9 +2,13 @@ import { writable } from 'svelte/store';
 
 const s = writable(
     {
-        userId: '',
-        userName: '',
-        loggedIn: false
+        oUser: {
+            nick: "",
+            firstname: "",
+            lastname: "",
+            email: "",
+            loggedIn: false
+        }
     },
 );
 
