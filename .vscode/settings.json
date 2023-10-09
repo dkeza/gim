@@ -1,0 +1,6 @@
+{
+    "harbour.compilerExecutable": "harbour.exe",
+    "harbour.extraIncludePaths": [
+        "c:\\files\\install\\harbour\\include\\"
+    ]
+}
