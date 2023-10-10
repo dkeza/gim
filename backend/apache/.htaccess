@@ -1,0 +1,3 @@
+RewriteEngine ON
+RewriteCond %{REQUEST_URI} !(index)\.prg [NC]
+RewriteRule ^ - [F]
