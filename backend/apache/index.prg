@@ -7,17 +7,18 @@ FUNCTION Main()
      LOCAL input := ""
      LOCAL jsonFound := 0
      LOCAL oSession := cSession():New()
+     LOCAL oUser := cUser():New(oSession)
 
      jsonOut["success"] := .F.
      jsonOut["error"] := ""
      jsonOut["errorcode"] := 0
 
-     AP_SetContentType( "application/json" )
+     AP_SetContentType("application/json")
     
      IF AP_Method()<>"POST"
           jsonOut["error"] := "http_method_not_allowed"
           jsonOut["errorcode"] := 1
-          ?? hb_jsonEncode( jsonOut )
+          ?? hb_jsonEncode(jsonOut)
           RETURN nil
      ENDIF
     
@@ -35,35 +36,74 @@ FUNCTION Main()
                jsonOut["errorcode"] := 2
 
           CASE jsonIn["method"]=="register"
-               OnRegister(@jsonIn, @jsonOut, oSession)
+               oUser:OnRegister(@jsonIn, @jsonOut)
 
           CASE jsonIn["method"]=="login"
-               OnLogin(@jsonIn, @jsonOut, oSession)
+               oUser:OnLogin(@jsonIn, @jsonOut)
 
           CASE .NOT. oSession:IsValid()
                jsonOut["error"] := "unauthenticated"
                jsonOut["errorcode"] := 3
 
           CASE jsonIn["method"]=="logout"
-               OnLogout(@jsonOut, oSession)
+               oUser:OnLogout(@jsonOut)
 
           CASE jsonIn["method"]=="ping"
                jsonOut["timestamp"] := ""
                OnPing(@jsonIn, @jsonOut)
 
                OTHERWISE
+
                jsonOut["error"] := "unknown_method"
                jsonOut["errorcode"] := 4
 
      ENDCASE
 	
-     ?? hb_jsonEncode( jsonOut ) 
+     ?? hb_jsonEncode(jsonOut) 
 
 RETURN nil
 
 //
 
-FUNCTION OnRegister( jsonIn, jsonOut, oSession )
+FUNCTION OnPing(jsonIn, jsonOut)
+
+     jsonOut["success"] := .T.
+     jsonOut["timestamp"] := DTOS(DATE()) + "_" + TIME()
+
+RETURN nil
+
+//
+
+FUNCTION tbopen(cTable)
+
+     USE (hb_GetEnv("PRGPATH") + "/" + cTable) SHARED
+
+RETURN .T.
+
+// --- CLASS cUser --- BEGIN
+
+CLASS cUser
+
+     DATA oSession INIT nil
+	
+     METHOD New(oSession) CONSTRUCTOR	
+     METHOD OnRegister(jsonIn, jsonOut)
+     METHOD OnLogin(jsonIn, jsonOut)
+     METHOD OnLogout(jsonOut)
+     METHOD ValidPassword(jsonIn, jsonOut, iduser)
+     METHOD GenerateSalt(nLength)
+     METHOD HashPassword(cPassword, cSalt)
+
+ENDCLASS
+
+METHOD New(oSession) CLASS cUser
+
+     ::oSession = oSession
+
+RETURN Self
+
+METHOD OnRegister(jsonIn, jsonOut) CLASS cUser
+
      LOCAL cSalt, cHashedPassword, cEMail, cUsername, cPassword
 
      cUsername := AllTrim(jsonIn["nick"])
@@ -89,10 +129,10 @@ FUNCTION OnRegister( jsonIn, jsonOut, oSession )
      ENDIF
 
      // Generate a new salt
-     cSalt = GenerateSalt( 16 )
+     cSalt = ::GenerateSalt(16)
      
      // Hash the provided password with the new salt
-     cHashedPassword = HashPassword( cPassword, cSalt )
+     cHashedPassword = ::HashPassword(cPassword, cSalt)
      
      // Store in the database
      tbopen("users")
@@ -129,13 +169,13 @@ FUNCTION OnRegister( jsonIn, jsonOut, oSession )
 
      DbUnLock()
        
-     oSession:Create(users->id, @jsonOut)
+     ::oSession:Create(users->id, @jsonOut)
 
 RETURN nil
 
 //
 
-FUNCTION OnLogin(jsonIn, jsonOut, oSession)
+METHOD OnLogin(jsonIn, jsonOut) CLASS cUser
 
      LOCAL iduser
      iduser := 0
@@ -145,35 +185,27 @@ FUNCTION OnLogin(jsonIn, jsonOut, oSession)
      jsonOut["lastname"] := ""
      jsonOut["email"] := ""
 
-     IF .NOT. ValidPassword(@jsonIn, @jsonOut, @iduser)
+     IF .NOT. ::ValidPassword(@jsonIn, @jsonOut, @iduser)
           RETURN nil
      ENDIF
 
-     oSession:Create(iduser, @jsonOut)
+     ::oSession:Create(iduser, @jsonOut)
 
 RETURN nil
 
 //
 
-FUNCTION OnLogout(jsonOut, oSession)
+METHOD OnLogout(jsonOut) CLASS cUser
 
      jsonOut["success"] := .T.
-     oSession:Delete()
+
+     ::oSession:Delete()
 
 RETURN nil
 
 //
 
-FUNCTION OnPing(jsonIn, jsonOut)
-
-     jsonOut["success"] := .T.
-     jsonOut["timestamp"] := DTOS(DATE()) + "_" + TIME()
-
-RETURN nil
-
-//
-
-FUNCTION ValidPassword( jsonIn, jsonOut, iduser )
+METHOD ValidPassword(jsonIn, jsonOut, iduser) CLASS cUser
 
      LOCAL cStoredSalt, cStoredHash, cHashedAttempt, cUsername, cPassword
 
@@ -196,11 +228,11 @@ FUNCTION ValidPassword( jsonIn, jsonOut, iduser )
           RETURN .F.  // User not found
      ENDIF
   
-     cStoredSalt = AllTrim(salt)
-     cStoredHash = AllTrim(hash)
+     cStoredSalt = ALLTRIM(users->salt)
+     cStoredHash = ALLTRIM(users->hash)
   
      // Hash the provided password with the retrieved salt
-     cHashedAttempt = HashPassword( cPassword, cStoredSalt )
+     cHashedAttempt = ::HashPassword(cPassword, cStoredSalt)
   
      // Check if this hash matches the stored hash
      IF .NOT. cHashedAttempt == cStoredHash
@@ -209,40 +241,35 @@ FUNCTION ValidPassword( jsonIn, jsonOut, iduser )
           RETURN .F.
      ENDIF
 
-     iduser := id
-     jsonOut["nick"] := AllTrim(nick)
-     jsonOut["firstname"] := AllTrim(firstname)
-     jsonOut["lastname"] := AllTrim(lastname)
-     jsonOut["email"] := AllTrim(email)
+     iduser := users->id
+     jsonOut["nick"] := ALLTRIM(users->nick)
+     jsonOut["firstname"] := ALLTRIM(users->firstname)
+     jsonOut["lastname"] := ALLTRIM(users->lastname)
+     jsonOut["email"] := ALLTRIM(users->email)
      jsonOut["success"] := .T.
 
      CLOSE users
 
 RETURN .T.
 
-//
+METHOD GenerateSalt(nLength) CLASS cUser
 
-FUNCTION GenerateSalt( nLength )
      LOCAL cSalt := ""
      LOCAL nI
      LOCAL cChars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
      
      FOR nI := 1 TO nLength
-          cSalt += SUBSTR( cChars, RAND() * LEN( cChars ) + 1, 1 )
+          cSalt += SUBSTR(cChars, RAND() * LEN(cChars) + 1, 1)
      NEXT
      
 RETURN cSalt
 
-FUNCTION HashPassword( cPassword, cSalt )
-RETURN hb_SHA1( cPassword + cSalt, "SHA256" )
+METHOD HashPassword(cPassword, cSalt) CLASS cUser
+RETURN hb_SHA1(cPassword + cSalt, "SHA256")
 
-FUNCTION tbopen(cTable)
-     USE ( hb_GetEnv( "PRGPATH" ) + "/" + cTable) SHARED
-RETURN .T.
+// --- CLASS cSession --- END
 
 // --- CLASS cSession --- BEGIN
-
-
 
 CLASS cSession
 
@@ -250,7 +277,7 @@ CLASS cSession
 	
      METHOD New() CONSTRUCTOR	
      METHOD ReadCookie()
-     METHOD Create( duser, jsonOut )
+     METHOD Create(duser, jsonOut)
      METHOD Delete()
      METHOD IsValid()
      METHOD GenerateUUID() 
@@ -258,7 +285,9 @@ CLASS cSession
 ENDCLASS
 
 METHOD New() CLASS cSession
+
      ::ReadCookie()
+
 RETURN Self
 
 METHOD ReadCookie() CLASS cSession
@@ -268,11 +297,11 @@ METHOD ReadCookie() CLASS cSession
      ::cID := ""
      hHeadersIn := AP_HeadersIn()
 
-     IF .NOT. hb_HHasKey( hHeadersIn, "Cookie" )
+     IF .NOT. hb_HHasKey(hHeadersIn, "Cookie")
           RETURN nil
      ENDIF
 
-     cIDValue := hHeadersIn[ "Cookie" ]
+     cIDValue := hHeadersIn["Cookie"]
 
      IF LEN(cIDValue)<30
           RETURN nil
@@ -282,7 +311,7 @@ METHOD ReadCookie() CLASS cSession
 
 RETURN nil
 
-METHOD Create( iduser, jsonOut )
+METHOD Create(iduser, jsonOut) CLASS cSession
 
      LOCAL cCookie
      LOCAL sid := ""
@@ -334,21 +363,21 @@ METHOD GenerateUUID() CLASS cSession
      LOCAL cUUID  := ""
      LOCAL n := 0
   
-     for n = 1 to 8
+     FOR n = 1 to 8
           cUUID += SubStr( cChars, hb_Random( 1, 16 ), 1 )
-     next
+     NEXT
      
-     for n = 1 to 3
+     FOR n = 1 to 3
           cUUID += SubStr( cChars, hb_Random( 1, 16 ), 1 )
-     next
+     NEXT
   
-     for n = 1 to 4
+     FOR n = 1 to 4
           cUUID += SubStr( cChars, hb_Random( 1, 16 ), 1 )
-     next
+     NEXT
   
-     for n = 1 to 12
+     FOR n = 1 to 12
           cUUID += SubStr( cChars, hb_Random( 1, 16 ), 1 )
-     next
+     NEXT
    
 RETURN LOWER(cUUID)
 
