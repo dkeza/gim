@@ -1,2 +1,4 @@
 sessions.dbf
 test.log
+*.bak
+*.BAK

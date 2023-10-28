@@ -8,6 +8,7 @@ FUNCTION Main()
      LOCAL jsonFound := 0
      LOCAL oSession := cSession():New()
      LOCAL oUser := cUser():New(oSession)
+     LOCAL oGym := cGym():New(oSession)
 
      jsonOut["success"] := .F.
      jsonOut["error"] := ""
@@ -35,6 +36,10 @@ FUNCTION Main()
                jsonOut["error"] := "unknown_request"
                jsonOut["errorcode"] := 2
 
+          CASE jsonIn["method"]=="ping"
+               jsonOut["timestamp"] := ""
+               OnPing(@jsonIn, @jsonOut)
+
           CASE jsonIn["method"]=="register"
                oUser:OnRegister(@jsonIn, @jsonOut)
 
@@ -48,9 +53,8 @@ FUNCTION Main()
           CASE jsonIn["method"]=="logout"
                oUser:OnLogout(@jsonOut)
 
-          CASE jsonIn["method"]=="ping"
-               jsonOut["timestamp"] := ""
-               OnPing(@jsonIn, @jsonOut)
+          CASE jsonIn["method"]=="gym_list"
+               oGym:List(@jsonIn, @jsonOut)
 
                OTHERWISE
 
@@ -77,6 +81,12 @@ RETURN nil
 FUNCTION tbopen(cTable)
 
      USE (hb_GetEnv("PRGPATH") + "/" + cTable) SHARED
+
+RETURN .T.
+
+FUNCTION tbclose(cTable)
+
+     CLOSE (cTable)
 
 RETURN .T.
 
@@ -273,7 +283,8 @@ RETURN hb_SHA1(cPassword + cSalt, "SHA256")
 
 CLASS cSession
 
-     DATA cID  INIT ""	
+     DATA cID  INIT ""
+     DATA nUserID INIT ""
 	
      METHOD New() CONSTRUCTOR	
      METHOD ReadCookie()
@@ -353,6 +364,7 @@ METHOD IsValid() CLASS cSession
      LOCATE FOR sessions->sessionid = ::cID
      IF FOUND()
           isValid := .T.
+          ::nUserID = sessions->userid
      ENDIF
 
 RETURN isValid
@@ -397,3 +409,47 @@ METHOD Delete() CLASS cSession
 RETURN Self
 
 // --- CLASS cSession --- END
+
+// --- CLASS cGym   --- BEGIN
+
+CLASS cGym
+
+     DATA oSession INIT nil
+	
+     METHOD New(oSession) CONSTRUCTOR	
+     METHOD List(jsonIn, jsonOut)
+
+ENDCLASS
+
+METHOD New(oSession) CLASS cGym
+
+     ::oSession = oSession
+
+RETURN Self
+
+METHOD List(jsonIn, jsonOut) CLASS cGym
+     LOCAL aResult := {}
+     LOCAL cID, cName
+     LOCAL aReg
+     
+     tbopen("gyms")
+     dbGoTop()
+
+     DO WHILE ! EOF()
+          IF gyms->userid == ::oSession:nUserID
+               aReg = {=>}
+               aReg[ 'id' ] = gyms->id
+               aReg[ 'name'  ] = AllTrim(gyms->name)
+               AAdd( aResult, aReg )
+          ENDIF
+          dbSkip()
+     ENDDO
+     
+     tbclose("gyms")
+
+     jsonOut["success"] := .T.
+     jsonOut["list"] := aResult
+
+RETURN nil
+
+// --- CLASS cGym   ---   END
