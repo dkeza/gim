@@ -35,6 +35,9 @@
             $s.oUser.lastname = res.lastname;
             $s.oUser.email = res.email;
             $s.oUser.loggedIn = true;
+            $s.oGym.id = res.gym.id;
+            $s.oGym.name = res.gym.name;
+            $s.oGym.list = res.gym.list;
             push("/");
             return;
         }

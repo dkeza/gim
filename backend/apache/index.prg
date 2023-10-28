@@ -7,8 +7,8 @@ FUNCTION Main()
      LOCAL input := ""
      LOCAL jsonFound := 0
      LOCAL oSession := cSession():New()
-     LOCAL oUser := cUser():New(oSession)
      LOCAL oGym := cGym():New(oSession)
+     LOCAL oUser := cUser():New(oSession, oGym)
 
      jsonOut["success"] := .F.
      jsonOut["error"] := ""
@@ -54,7 +54,7 @@ FUNCTION Main()
                oUser:OnLogout(@jsonOut)
 
           CASE jsonIn["method"]=="gym_list"
-               oGym:List(@jsonIn, @jsonOut)
+               oGym:List(@jsonOut)
 
           CASE jsonIn["method"]=="gym_create"
                oGym:Create(@jsonIn, @jsonOut)
@@ -83,6 +83,7 @@ RETURN nil
 
 FUNCTION tbopen(cTable)
 
+     SELECT 0
      USE (hb_GetEnv("PRGPATH") + "/" + cTable) SHARED
 
 RETURN .T.
@@ -98,6 +99,7 @@ RETURN .T.
 CLASS cUser
 
      DATA oSession INIT nil
+     DATA oGym INIT nil
 	
      METHOD New(oSession) CONSTRUCTOR	
      METHOD OnRegister(jsonIn, jsonOut)
@@ -109,9 +111,10 @@ CLASS cUser
 
 ENDCLASS
 
-METHOD New(oSession) CLASS cUser
+METHOD New(oSession, oGym) CLASS cUser
 
      ::oSession = oSession
+     ::oGym = oGym
 
 RETURN Self
 
@@ -190,7 +193,8 @@ RETURN nil
 
 METHOD OnLogin(jsonIn, jsonOut) CLASS cUser
 
-     LOCAL iduser
+     LOCAL iduser, aGym, gymID, gymName
+
      iduser := 0
 
      jsonOut["nick"] := ""
@@ -198,11 +202,18 @@ METHOD OnLogin(jsonIn, jsonOut) CLASS cUser
      jsonOut["lastname"] := ""
      jsonOut["email"] := ""
 
-     IF .NOT. ::ValidPassword(@jsonIn, @jsonOut, @iduser)
+     IF .NOT. ::ValidPassword(@jsonIn, @jsonOut, @iduser, @gymID, @gymName)
           RETURN nil
      ENDIF
 
      ::oSession:Create(iduser, @jsonOut)
+
+     aGym = {=>}
+     aGym['id'] = gymid
+     aGym['name'] = gymName
+     aGym['list'] = ::oGym:GetList()
+
+     jsonOut["gym"] := aGym
 
 RETURN nil
 
@@ -218,12 +229,14 @@ RETURN nil
 
 //
 
-METHOD ValidPassword(jsonIn, jsonOut, iduser) CLASS cUser
+METHOD ValidPassword(jsonIn, jsonOut, iduser, gymID, gymName) CLASS cUser
 
      LOCAL cStoredSalt, cStoredHash, cHashedAttempt, cUsername, cPassword
 
      cUsername := AllTrim(jsonIn["nick"])
      cPassword := AllTrim(jsonIn["password"])
+     gymID := ""
+     gymName := ""
 
      IF LEN(cUsername) == 0 .OR. LEN(cPassword) == "0"
           jsonOut["error"] := "empty_username_or_password"
@@ -235,7 +248,7 @@ METHOD ValidPassword(jsonIn, jsonOut, iduser) CLASS cUser
      tbopen("users")
      LOCATE FOR users->nick = cUsername
      IF !FOUND()
-          CLOSE users
+          tbclose("users")
           jsonOut["error"] := "invalid_username"
           jsonOut["errorcode"] := 6
           RETURN .F.  // User not found
@@ -261,7 +274,13 @@ METHOD ValidPassword(jsonIn, jsonOut, iduser) CLASS cUser
      jsonOut["email"] := ALLTRIM(users->email)
      jsonOut["success"] := .T.
 
-     CLOSE users
+     gymID := users->gymid
+
+     IF gymID > 0
+          gymName := ::oGym:Get(gymID)
+     ENDIF
+
+     tbclose("users")
 
 RETURN .T.
 
@@ -343,6 +362,7 @@ METHOD Create(iduser, jsonOut) CLASS cSession
      ENDIF
 
      ::cID := sid
+     ::nUserID = iduser
 
      field->sessionid := sid
      field->userid := iduser
@@ -420,7 +440,9 @@ CLASS cGym
      DATA oSession INIT nil
 	
      METHOD New(oSession) CONSTRUCTOR	
-     METHOD List(jsonIn, jsonOut)
+     METHOD List(jsonOut)
+     METHOD Get(gymID)
+     METHOD GetList()
      METHOD Create(jsonIn, jsonOut)
 
 ENDCLASS
@@ -431,7 +453,39 @@ METHOD New(oSession) CLASS cGym
 
 RETURN Self
 
-METHOD List(jsonIn, jsonOut) CLASS cGym
+METHOD List(jsonOut) CLASS cGym
+
+     jsonOut["success"] := .T.
+     jsonOut["list"] := ::GetList()
+
+RETURN nil
+
+METHOD Get(gymID) CLASS cGym
+     LOCAL aResult := {}
+     LOCAL cID, cName
+     LOCAL aData
+
+     aData = {=>}
+     aData['id'] = ""
+     aData['name'] = ""
+
+     IF EMPTY(gymID)
+          RETURN aData
+     ENDIF
+
+     tbopen("gyms")
+
+     LOCATE FOR gyms->id == gymID
+     IF FOUND()
+          aData['id'] = gyms->id
+          aData['name'] = gyms->name
+     ENDIF
+
+     tbclose("gyms")
+
+RETURN aData
+
+METHOD GetList() CLASS cGym
      LOCAL aResult := {}
      LOCAL cID, cName
      LOCAL aReg
@@ -451,10 +505,7 @@ METHOD List(jsonIn, jsonOut) CLASS cGym
      
      tbclose("gyms")
 
-     jsonOut["success"] := .T.
-     jsonOut["list"] := aResult
-
-RETURN nil
+RETURN aResult
 
 METHOD Create(jsonIn, jsonOut) CLASS cGym
           

@@ -2,9 +2,8 @@
     import { onMount } from "svelte";
     import { _ } from "./services/i18n";
     import APIGet from "./services/api";
-    import { push } from "svelte-spa-router";
+    import s from "./services/stores.js";
 
-    let gymsList = [];
     let name = "";
 
     onMount(async () => {
@@ -20,7 +19,7 @@
             console.log(res);
 
             if (res.success) {
-                gymsList = [...res.list];
+                $s.oGym.list = [...res.list];
             }
         } catch (err) {
             console.log(err);
@@ -57,7 +56,7 @@
 </form>
 <br />
 <ul>
-    {#each gymsList as item}
+    {#each $s.oGym.list as item}
         <li>{item.name}</li>
     {/each}
 </ul>

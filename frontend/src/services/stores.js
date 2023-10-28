@@ -8,6 +8,11 @@ const s = writable(
             lastname: "",
             email: "",
             loggedIn: false
+        },
+        oGym: {
+            id: 0,
+            name: "",
+            list: []
         }
     },
 );
