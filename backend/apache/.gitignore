@@ -2,3 +2,7 @@ sessions.dbf
 test.log
 *.bak
 *.BAK
+gyms.*
+sessions.*
+users.*
+workouts.*
