@@ -22,5 +22,9 @@
     "invalid_email": "Neispravna E-Pošta",
     "username_exists": "Korisničko ime već postoji",
     "database_access_error": "Greška pri pristupu bazi podataka",
-    "you_have_account": "Već imaš korisnički nalog?"
+    "you_have_account": "Već imaš korisnički nalog?",
+    "gyms": "Teretane",
+    "add_new_gym": "Dodaj novu teretanu",
+    "create": "Kreiraj",
+    "name": "Ime"
 }

@@ -22,5 +22,9 @@
     "invalid_email": "Ongeldige E-Mail",
     "username_exists": "Gebruikersnaam bestaat al",
     "database_access_error": "Database toegangsfout",
-    "you_have_account": "Heb je al een account?"
+    "you_have_account": "Heb je al een account?",
+    "gyms": "Sportscholen",
+    "add_new_gym": "Nieuwe sportschool toevoegen",
+    "create": "Aanmaken",
+    "name": "Naam"
 }

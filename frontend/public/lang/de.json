@@ -22,5 +22,9 @@
     "invalid_email": "Ungültige E-Mail",
     "username_exists": "Benutzername existiert bereits",
     "database_access_error": "Datenbankzugriffsfehler",
-    "you_have_account": "Haben Sie bereits ein Konto?"
+    "you_have_account": "Haben Sie bereits ein Konto?",
+    "gyms": "Fitnessstudios",
+    "add_new_gym": "Neues Fitnessstudio hinzufügen",
+    "create": "Erstellen",
+    "name": "Name"
 }

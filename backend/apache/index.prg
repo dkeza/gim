@@ -56,6 +56,9 @@ FUNCTION Main()
           CASE jsonIn["method"]=="gym_list"
                oGym:List(@jsonIn, @jsonOut)
 
+          CASE jsonIn["method"]=="gym_create"
+               oGym:Create(@jsonIn, @jsonOut)
+
                OTHERWISE
 
                jsonOut["error"] := "unknown_method"
@@ -418,6 +421,7 @@ CLASS cGym
 	
      METHOD New(oSession) CONSTRUCTOR	
      METHOD List(jsonIn, jsonOut)
+     METHOD Create(jsonIn, jsonOut)
 
 ENDCLASS
 
@@ -449,6 +453,28 @@ METHOD List(jsonIn, jsonOut) CLASS cGym
 
      jsonOut["success"] := .T.
      jsonOut["list"] := aResult
+
+RETURN nil
+
+METHOD Create(jsonIn, jsonOut) CLASS cGym
+          
+     tbopen("gyms")
+
+     APPEND BLANK
+     IF .NOT. RLOCK()
+          jsonOut["error"] := "database_access_error"
+          jsonOut["errorcode"] := 14
+     ENDIF
+
+     field->name := jsonIn["name"]
+     field->userid := ::oSession:nUserID
+     field->created := hb_DateTime()
+
+     DbUnLock()
+
+     tbclose("gyms")
+
+     jsonOut["success"] := .T.
 
 RETURN nil
 
