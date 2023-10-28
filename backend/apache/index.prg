@@ -59,6 +59,9 @@ FUNCTION Main()
           CASE jsonIn["method"]=="gym_create"
                oGym:Create(@jsonIn, @jsonOut)
 
+          CASE jsonIn["method"]=="user_select_gym"
+               oUser:OnSelectGym(@jsonIn, @jsonOut)
+
                OTHERWISE
 
                jsonOut["error"] := "unknown_method"
@@ -90,7 +93,7 @@ RETURN .T.
 
 FUNCTION tbclose(cTable)
 
-     CLOSE (cTable)
+     CLOSE &cTable
 
 RETURN .T.
 
@@ -108,6 +111,7 @@ CLASS cUser
      METHOD ValidPassword(jsonIn, jsonOut, iduser)
      METHOD GenerateSalt(nLength)
      METHOD HashPassword(cPassword, cSalt)
+     METHOD OnSelectGym(jsonIn, jsonOut)
 
 ENDCLASS
 
@@ -229,9 +233,54 @@ RETURN nil
 
 //
 
+METHOD OnSelectGym(jsonIn, jsonOut) CLASS cUser
+
+     LOCAL aGym
+
+     IF EMPTY(jsonIn["id"])
+          jsonOut["error"] := "invalid_gym_id"
+          jsonOut["errorcode"] := 17
+          RETURN nil
+     ENDIF
+
+     aGym := ::oGym:Get(jsonIn["id"], ::oSession:nUserID)
+
+     IF EMPTY(aGym["id"])
+          jsonOut["error"] := "invalid_gym_id"
+          jsonOut["errorcode"] := 18
+          RETURN nil
+     ENDIF
+
+     tbopen("users")
+
+     LOCATE FOR users->id == ::oSession:nUserID
+     IF ! FOUND()
+          tbclose("users")
+          jsonOut["error"] := "invalid_user"
+          jsonOut["errorcode"] := 15
+          RETURN nil
+     ENDIF
+
+     IF .NOT. RLOCK()
+          jsonOut["error"] := "database_access_error"
+          jsonOut["errorcode"] := 16
+     ENDIF
+
+     field->gymid := aGym["id"]
+
+     DbUnLock()
+
+     tbclose("users")
+
+     jsonOut["success"] := .T.
+     jsonOut["id"] := aGym["id"]
+     jsonOut["name"] := aGym["name"]
+
+RETURN nil
+
 METHOD ValidPassword(jsonIn, jsonOut, iduser, gymID, gymName) CLASS cUser
 
-     LOCAL cStoredSalt, cStoredHash, cHashedAttempt, cUsername, cPassword
+     LOCAL cStoredSalt, cStoredHash, cHashedAttempt, cUsername, cPassword, aGym
 
      cUsername := AllTrim(jsonIn["nick"])
      cPassword := AllTrim(jsonIn["password"])
@@ -277,7 +326,8 @@ METHOD ValidPassword(jsonIn, jsonOut, iduser, gymID, gymName) CLASS cUser
      gymID := users->gymid
 
      IF gymID > 0
-          gymName := ::oGym:Get(gymID)
+          aGym := ::oGym:Get(gymID)
+          gymName := aGym["name"]
      ENDIF
 
      tbclose("users")
@@ -299,14 +349,14 @@ RETURN cSalt
 METHOD HashPassword(cPassword, cSalt) CLASS cUser
 RETURN hb_SHA1(cPassword + cSalt, "SHA256")
 
-// --- CLASS cSession --- END
+// --- CLASS cUser    --- END
 
 // --- CLASS cSession --- BEGIN
 
 CLASS cSession
 
      DATA cID  INIT ""
-     DATA nUserID INIT ""
+     DATA nUserID INIT 0
 	
      METHOD New() CONSTRUCTOR	
      METHOD ReadCookie()
@@ -355,6 +405,7 @@ METHOD Create(iduser, jsonOut) CLASS cSession
      SetCookie('id', sid)
           
      tbopen("sessions")
+
      APPEND BLANK
      IF .NOT. RLOCK()
           jsonOut["error"] := "database_access_error"
@@ -370,6 +421,7 @@ METHOD Create(iduser, jsonOut) CLASS cSession
 
      DbUnLock()
 
+     tbclose("sessions")
      // cCookie := GetCookieByKey( "_APP_SESSION_" )
      // SetCookie( "_APP_SESSION_", cCookie )
 
@@ -384,11 +436,14 @@ METHOD IsValid() CLASS cSession
      ENDIF
 
      tbopen("sessions")
+
      LOCATE FOR sessions->sessionid = ::cID
      IF FOUND()
           isValid := .T.
           ::nUserID = sessions->userid
      ENDIF
+
+     tbclose("sessions")
 
 RETURN isValid
 
@@ -429,6 +484,9 @@ METHOD Delete() CLASS cSession
      ENDIF
 
      SetCookie('id', "") 
+
+     tbclose("sessions")
+
 RETURN Self
 
 // --- CLASS cSession --- END
@@ -441,7 +499,7 @@ CLASS cGym
 	
      METHOD New(oSession) CONSTRUCTOR	
      METHOD List(jsonOut)
-     METHOD Get(gymID)
+     METHOD Get(gymID, userID)
      METHOD GetList()
      METHOD Create(jsonIn, jsonOut)
 
@@ -460,7 +518,7 @@ METHOD List(jsonOut) CLASS cGym
 
 RETURN nil
 
-METHOD Get(gymID) CLASS cGym
+METHOD Get(gymID, userID) CLASS cGym
      LOCAL aResult := {}
      LOCAL cID, cName
      LOCAL aData
@@ -475,10 +533,10 @@ METHOD Get(gymID) CLASS cGym
 
      tbopen("gyms")
 
-     LOCATE FOR gyms->id == gymID
+     LOCATE FOR gyms->id == gymID .AND. (EMPTY(userID) .OR. gyms->userid == userID)
      IF FOUND()
           aData['id'] = gyms->id
-          aData['name'] = gyms->name
+          aData['name'] = ALLTRIM(gyms->name)
      ENDIF
 
      tbclose("gyms")
