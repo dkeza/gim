@@ -53,6 +53,11 @@
                         use:link>{$_("logout")}</a
                     >
                 {/if}
+                {#if $s.oUser.loggedIn}
+                    <span class="user_info"
+                        >{$_("hi") + " " + $s.oUser.nick}</span
+                    >
+                {/if}
             </div>
         </div>
     </nav>

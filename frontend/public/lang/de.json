@@ -26,5 +26,6 @@
     "gyms": "Fitnessstudios",
     "add_new_gym": "Neues Fitnessstudio hinzufügen",
     "create": "Erstellen",
-    "name": "Name"
+    "name": "Name",
+    "hi": "Hallo"
 }
