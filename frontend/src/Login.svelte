@@ -27,8 +27,6 @@
 
         const res = await APIGet(oUser);
 
-        console.log(res);
-
         if (res.success) {
             $s.oUser.nick = res.nick;
             $s.oUser.firstname = res.firstname;
@@ -41,6 +39,8 @@
             push("/");
             return;
         }
+
+        reset();
 
         errorMessage = res.error;
         errorCode = res.errorcode;
@@ -62,6 +62,8 @@
             return;
         }
 
+        reset();
+
         errorMessage = res.error;
         errorCode = res.errorcode;
     }
@@ -72,6 +74,12 @@
 
     function showLogin() {
         register = false;
+    }
+
+    function reset() {
+        for (const key in oUser) {
+            oUser[key] = "";
+        }
     }
 </script>
 

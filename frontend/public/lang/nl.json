@@ -27,5 +27,7 @@
     "add_new_gym": "Nieuwe sportschool toevoegen",
     "create": "Aanmaken",
     "name": "Naam",
-    "hi": "Hoi"
+    "hi": "Hoi",
+    "equipments": "Fitnessapparatuur",
+    "add_new_equipment": "Nieuwe fitnessapparatuur toevoegen"
 }

@@ -27,5 +27,7 @@
     "add_new_gym": "Dodaj novu teretanu",
     "create": "Kreiraj",
     "name": "Ime",
-    "hi": "Zdravo"
+    "hi": "Zdravo",
+    "equipments": "Sprave",
+    "add_new_equipment": "Dodaj novu spravu"
 }

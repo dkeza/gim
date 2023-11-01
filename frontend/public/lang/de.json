@@ -27,5 +27,7 @@
     "add_new_gym": "Neues Fitnessstudio hinzufügen",
     "create": "Erstellen",
     "name": "Name",
-    "hi": "Hallo"
+    "hi": "Hallo",
+    "equipments": "Fitnessgeräte",
+    "add_new_equipment": "Neues Fitnessgerät hinzufügen"
 }

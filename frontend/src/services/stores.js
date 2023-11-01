@@ -13,6 +13,9 @@ const s = writable(
             id: 0,
             name: "",
             list: []
+        },
+        oEquipment: {
+            list: []
         }
     },
 );

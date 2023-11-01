@@ -8,6 +8,7 @@
     import { setupI18n, isLocaleLoaded, locale, _ } from "./services/i18n";
     import Home from "./Home.svelte";
     import Workouts from "./Workouts.svelte";
+    import Equipments from "./Equipments.svelte";
     import Gyms from "./Gyms.svelte";
     import Login from "./Login.svelte";
     import Logout from "./Logout.svelte";
@@ -46,6 +47,11 @@
                         class:active={$location === "/gyms"}
                         href="/gyms"
                         use:link>{$_("gyms")}</a
+                    >
+                    <a
+                        class:active={$location === "/equipments"}
+                        href="/equipments"
+                        use:link>{$_("equipments")}</a
                     >
                     <a
                         class:active={$location === "/logout"}
@@ -89,6 +95,18 @@
                         }),
                         "/gyms": wrap({
                             component: Gyms,
+                            conditions: [
+                                () => {
+                                    if (!$s.oUser.loggedIn) {
+                                        push("/login");
+                                        return false;
+                                    }
+                                    return true;
+                                },
+                            ],
+                        }),
+                        "/equipments": wrap({
+                            component: Equipments,
                             conditions: [
                                 () => {
                                     if (!$s.oUser.loggedIn) {

@@ -9,6 +9,7 @@ FUNCTION Main()
      LOCAL oSession := cSession():New()
      LOCAL oGym := cGym():New(oSession)
      LOCAL oUser := cUser():New(oSession, oGym)
+     LOCAL oEquipment := cEquipment():New(oSession)
 
      jsonOut["success"] := .F.
      jsonOut["error"] := ""
@@ -61,6 +62,12 @@ FUNCTION Main()
 
           CASE jsonIn["method"]=="user_select_gym"
                oUser:OnSelectGym(@jsonIn, @jsonOut)
+
+          CASE jsonIn["method"]=="equipment_list"
+               oEquipment:List(@jsonOut)
+
+          CASE jsonIn["method"]=="equipment_create"
+               oEquipment:Create(@jsonIn, @jsonOut)
 
                OTHERWISE
 
@@ -588,3 +595,101 @@ METHOD Create(jsonIn, jsonOut) CLASS cGym
 RETURN nil
 
 // --- CLASS cGym   ---   END
+
+// --- CLASS cEquipment   --- BEGIN
+
+CLASS cEquipment
+
+     DATA oSession INIT nil
+	
+     METHOD New(oSession) CONSTRUCTOR	
+     METHOD List(jsonOut)
+     METHOD Get(equipmentID, userID)
+     METHOD GetList()
+     METHOD Create(jsonIn, jsonOut)
+
+ENDCLASS
+
+METHOD New(oSession) CLASS cEquipment
+
+     ::oSession = oSession
+
+RETURN Self
+
+METHOD List(jsonOut) CLASS cEquipment
+
+     jsonOut["success"] := .T.
+     jsonOut["list"] := ::GetList()
+
+RETURN nil
+
+METHOD Get(equipmentID, userID) CLASS cEquipment
+     LOCAL aResult := {}
+     LOCAL cID, cName
+     LOCAL aData
+
+     aData = {=>}
+     aData['id'] = ""
+     aData['name'] = ""
+
+     IF EMPTY(equipmentID)
+          RETURN aData
+     ENDIF
+
+     tbopen("equipments")
+
+     LOCATE FOR equipments->id == equipmentID .AND. (EMPTY(userID) .OR. equipments->userid == userID)
+     IF FOUND()
+          aData['id'] = equipments->id
+          aData['name'] = ALLTRIM(equipments->name)
+     ENDIF
+
+     tbclose("equipments")
+
+RETURN aData
+
+METHOD GetList() CLASS cEquipment
+     LOCAL aResult := {}
+     LOCAL cID, cName
+     LOCAL aReg
+     
+     tbopen("equipments")
+     dbGoTop()
+
+     DO WHILE ! EOF()
+          IF equipments->userid == ::oSession:nUserID
+               aReg = {=>}
+               aReg[ 'id' ] = equipments->id
+               aReg[ 'name'  ] = AllTrim(equipments->name)
+               AAdd( aResult, aReg )
+          ENDIF
+          dbSkip()
+     ENDDO
+     
+     tbclose("equipments")
+
+RETURN aResult
+
+METHOD Create(jsonIn, jsonOut) CLASS cEquipment
+          
+     tbopen("equipments")
+
+     APPEND BLANK
+     IF .NOT. RLOCK()
+          jsonOut["error"] := "database_access_error"
+          jsonOut["errorcode"] := 200
+     ENDIF
+
+     field->name := jsonIn["name"]
+     field->userid := ::oSession:nUserID
+     field->created := hb_DateTime()
+
+     DbUnLock()
+
+     tbclose("equipments")
+
+     jsonOut["success"] := .T.
+
+RETURN nil
+
+// --- CLASS cEquipment   ---   END

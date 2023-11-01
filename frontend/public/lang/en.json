@@ -27,5 +27,7 @@
     "add_new_gym": "Add new gym",
     "create": "Create",
     "name": "Name",
-    "hi": "Hi"
+    "hi": "Hi",
+    "equipments": "Equipments",
+    "add_new_equipment": "Add new equipment"
 }
