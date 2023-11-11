@@ -17,6 +17,9 @@
             $s.oUser.lastname = "";
             $s.oUser.email = "";
             $s.oUser.loggedIn = false;
+            $s.oGym.id = 0;
+            $s.oGym.name = "";
+            $s.oGym.list = "";
             push("/");
             return;
         }
